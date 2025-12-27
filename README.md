@@ -67,6 +67,35 @@ Train with hyperparameter tuning:
 python main.py --model random_forest --tune
 ```
 
+### Comprehensive Evaluation
+
+Run comprehensive evaluation with all metrics:
+```bash
+python evaluate_all_metrics.py
+```
+
+This will display:
+- ✅ Accuracy
+- ✅ Precision
+- ✅ Recall
+- ✅ F1-score
+- ✅ Confusion Matrix
+- ✅ ROC Curve and AUC
+- ✅ Classification Report
+
+### Streamlit Web Application
+
+Launch the interactive web app:
+```bash
+streamlit run app.py
+```
+
+The Streamlit app provides:
+- 🔮 **Single Patient Prediction**: Interactive form for individual predictions
+- 📊 **Batch Prediction**: Upload CSV files for bulk predictions
+- 📈 **Visualizations**: Probability distributions and feature importance
+- 💾 **Download Results**: Export predictions as CSV
+
 ### Making Predictions
 
 Single prediction using Python:
@@ -190,6 +219,8 @@ After training, you'll find:
 - matplotlib >= 3.6.0
 - seaborn >= 0.12.0
 - joblib >= 1.2.0
+- streamlit >= 1.28.0
+- plotly >= 5.17.0
 
 ## License
 
