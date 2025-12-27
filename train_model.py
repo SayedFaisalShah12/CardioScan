@@ -17,6 +17,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV, cross_val_score
 import joblib
+import pickle
 import logging
 import os
 from typing import Dict, Any, Optional, Tuple
@@ -205,7 +206,8 @@ class ModelTrainer:
         
         return grid_search.best_estimator_
     
-    def save_model(self, model: Any, model_name: str, version: Optional[str] = None) -> str:
+    def save_model(self, model: Any, model_name: str, version: Optional[str] = None, 
+                   use_pickle: bool = False) -> str:
         """
         Save a trained model to disk
         
@@ -213,6 +215,7 @@ class ModelTrainer:
             model: Trained model to save
             model_name: Name for the model file
             version: Optional version identifier (defaults to timestamp)
+            use_pickle: If True, use pickle instead of joblib
             
         Returns:
             Path to saved model file
@@ -223,10 +226,29 @@ class ModelTrainer:
         filename = f"{model_name}_{version}.pkl"
         filepath = os.path.join(self.model_dir, filename)
         
-        joblib.dump(model, filepath)
-        logger.info(f"Model saved to {filepath}")
+        if use_pickle:
+            with open(filepath, 'wb') as f:
+                pickle.dump(model, f)
+            logger.info(f"Model saved using pickle to {filepath}")
+        else:
+            joblib.dump(model, filepath)
+            logger.info(f"Model saved using joblib to {filepath}")
         
         return filepath
+    
+    def save_model_pickle(self, model: Any, model_name: str, version: Optional[str] = None) -> str:
+        """
+        Save a trained model to disk using pickle
+        
+        Args:
+            model: Trained model to save
+            model_name: Name for the model file
+            version: Optional version identifier (defaults to timestamp)
+            
+        Returns:
+            Path to saved model file
+        """
+        return self.save_model(model, model_name, version, use_pickle=True)
     
     def load_model(self, filepath: str) -> Any:
         """
@@ -246,12 +268,13 @@ class ModelTrainer:
         
         return model
     
-    def save_best_model(self, version: Optional[str] = None) -> str:
+    def save_best_model(self, version: Optional[str] = None, use_pickle: bool = True) -> str:
         """
         Save the best model to disk
         
         Args:
             version: Optional version identifier
+            use_pickle: If True, use pickle instead of joblib (default: True)
             
         Returns:
             Path to saved model file
@@ -259,7 +282,7 @@ class ModelTrainer:
         if self.best_model is None:
             raise ValueError("No best model selected. Call select_best_model() first.")
         
-        return self.save_model(self.best_model, self.best_model_name, version)
+        return self.save_model(self.best_model, self.best_model_name, version, use_pickle=use_pickle)
     
     def cross_validate(self, model_name: str, X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Dict[str, float]:
         """

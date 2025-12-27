@@ -11,6 +11,7 @@ This module handles:
 import pandas as pd
 import numpy as np
 import joblib
+import pickle
 import logging
 import os
 from typing import Dict, Any, Optional, Union, List
@@ -37,14 +38,21 @@ class HeartDiseasePredictor:
     
     def load_model(self) -> None:
         """
-        Load the trained model from disk
+        Load the trained model from disk (supports both pickle and joblib formats)
         """
         if not os.path.exists(self.model_path):
             raise FileNotFoundError(f"Model file not found: {self.model_path}")
         
         try:
-            self.model = joblib.load(self.model_path)
-            logger.info(f"Model loaded successfully from {self.model_path}")
+            # Try loading with pickle first (for pickle-saved models)
+            try:
+                with open(self.model_path, 'rb') as f:
+                    self.model = pickle.load(f)
+                logger.info(f"Model loaded successfully using pickle from {self.model_path}")
+            except (pickle.UnpicklingError, TypeError):
+                # Fall back to joblib if pickle fails
+                self.model = joblib.load(self.model_path)
+                logger.info(f"Model loaded successfully using joblib from {self.model_path}")
         except Exception as e:
             logger.error(f"Error loading model: {str(e)}")
             raise

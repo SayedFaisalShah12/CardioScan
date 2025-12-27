@@ -93,15 +93,17 @@ def train_pipeline(model_name: str = None, tune_hyperparameters: bool = False):
     # Step 4: Save Best Model
     logger.info("\n[Step 4/4] Saving Model...")
     if model_name:
-        model_path = trainer.save_model(
+        # Save with pickle
+        model_path = trainer.save_model_pickle(
             trainer.models[model_name],
             model_name,
             version='latest'
         )
     else:
-        model_path = trainer.save_best_model(version='latest')
+        # Save best model with pickle
+        model_path = trainer.save_best_model(version='latest', use_pickle=True)
     
-    logger.info(f"\nModel saved to: {model_path}")
+    logger.info(f"\nBest model saved using pickle to: {model_path}")
     logger.info("\n" + "="*70)
     logger.info("TRAINING PIPELINE COMPLETED SUCCESSFULLY")
     logger.info("="*70)
